@@ -173,7 +173,7 @@ func PrintVec(vec []float64, name string) {
 	fmt.Println()
 }
 
-func EqualToA(A, matrix [][]float64, eps float64) bool {
+func EqualMatrixes(A, matrix [][]float64, eps float64) bool {
 	if len(A) != len(matrix) || len(A[0]) != len(matrix[0]) {
 		return false
 	}

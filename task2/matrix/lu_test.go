@@ -16,9 +16,9 @@ func TestLUOnEqualPAQ(t *testing.T) {
 	require.NoError(t, err)
 
 	lu := Mult(m.L, m.U)
-	A_fixed := Mult(m.P, m.A) // removing permutation effect
+	pa := Mult(m.P, m.A) // removing permutation effect
 
-	assert.True(t, EqualToA(A_fixed, lu, Eps*Norm(m.A)))
+	assert.True(t, EqualMatrixes(pa, lu, Eps*Norm(m.A)))
 }
 
 func TestSLAE(t *testing.T) {
