@@ -14,7 +14,7 @@ type Matrix struct {
 	rows, cols    int
 	A, L, U, P, Q [][]float64
 	rowExchanges  int
-	isLU bool
+	isLU          bool
 }
 
 func New(rows, cols int) *Matrix {
@@ -227,7 +227,7 @@ func IsEye(matrix [][]float64, eps float64) bool {
 			if i == j {
 				num = 1.0
 			}
-			if math.Abs(matrix[i][j] - num) > eps {
+			if math.Abs(matrix[i][j]-num) > eps {
 				return false
 			}
 		}

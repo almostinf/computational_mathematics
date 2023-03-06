@@ -18,13 +18,13 @@ func TestLUOnEqualPAQ(t *testing.T) {
 	lu := Mult(m.L, m.U)
 	A_fixed := Mult(m.P, m.A) // removing permutation effect
 
-	assert.True(t,EqualToA(A_fixed, lu, Eps * Norm(m.A)))
+	assert.True(t, EqualToA(A_fixed, lu, Eps*Norm(m.A)))
 }
 
 func TestSLAE(t *testing.T) {
 	m := New(N, N)
 
-	err := m.LUDecomposition();
+	err := m.LUDecomposition()
 	require.NoError(t, err)
 
 	b := GetRandomVector(N)
@@ -37,7 +37,7 @@ func TestSLAE(t *testing.T) {
 	Ax, err := MultOnVecRight(m.A, x)
 	require.NoError(t, err)
 
-	assert.True(t, EqualVecs(Ax, b, Eps * Norm(m.A)))
+	assert.True(t, EqualVecs(Ax, b, Eps*Norm(m.A)))
 }
 
 func TestInverseLeft(t *testing.T) {
@@ -48,7 +48,7 @@ func TestInverseLeft(t *testing.T) {
 
 	eye := Mult(inv, m.A)
 
-	assert.True(t, IsEye(eye, Eps * Norm(m.A)))
+	assert.True(t, IsEye(eye, Eps*Norm(m.A)))
 }
 
 func TestInverseRight(t *testing.T) {
@@ -59,5 +59,5 @@ func TestInverseRight(t *testing.T) {
 
 	eye := Mult(m.A, inv)
 
-	assert.True(t, IsEye(eye, Eps * Norm(m.A)))
+	assert.True(t, IsEye(eye, Eps*Norm(m.A)))
 }

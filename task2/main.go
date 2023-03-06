@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/almostinf/computational_mathematics/task2/matrix"
 )
 
@@ -20,7 +21,7 @@ func main() {
 	matrix.Print(m.Q, "Q")
 	matrix.Print(matrix.Mult(m.L, m.U), "Mult")
 
-	res, err :=  m.Determinant()
+	res, err := m.Determinant()
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -48,5 +49,4 @@ func main() {
 	fixed_b, _ := matrix.MultOnVecRight(m.P, new_b)
 	matrix.PrintVec(fixed_b, "fixed_b")
 
-	
 }
