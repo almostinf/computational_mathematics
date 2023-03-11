@@ -15,6 +15,7 @@ type Matrix struct {
 	A, L, U, P, Q [][]float64
 	rowExchanges  int
 	isLU          bool
+	rank          int
 }
 
 func New(rows, cols int) *Matrix {
@@ -27,6 +28,7 @@ func New(rows, cols int) *Matrix {
 		P:    make([][]float64, rows),
 		Q:    make([][]float64, rows),
 		isLU: false,
+		rank: rows,
 	}
 
 	for i := range matrix.A {
@@ -55,6 +57,20 @@ func New(rows, cols int) *Matrix {
 	}
 
 	return matrix
+}
+
+func (m *Matrix) Set(matrix [][]float64) error {
+	if len(m.A) != len(matrix) || len(m.A[0]) != len(matrix[0]) {
+		return errors.New("matrixes have different size")
+	}
+
+	for i, r := range m.A {
+		for j := range r {
+			m.A[i][j] = matrix[i][j]
+		}
+	}
+
+	return nil
 }
 
 func Copy(m [][]float64) [][]float64 {
@@ -233,4 +249,14 @@ func IsEye(matrix [][]float64, eps float64) bool {
 		}
 	}
 	return true
+}
+
+func SwapMatrixCols(matrix [][]float64, col1, col2 int) {
+	for i := 0; i < col1; i++ {
+		matrix[i][col1], matrix[i][col2] = matrix[i][col2], matrix[i][col1]
+	}
+}
+
+func (m *Matrix) GetRank() int {
+	return m.rank
 }

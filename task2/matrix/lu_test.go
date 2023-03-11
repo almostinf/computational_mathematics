@@ -1,6 +1,7 @@
 package matrix
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -60,4 +61,52 @@ func TestInverseRight(t *testing.T) {
 	eye := Mult(m.A, inv)
 
 	assert.True(t, IsEye(eye, Eps*Norm(m.A)))
+}
+
+// TESTS FOR DEGEN MATRIX
+func TestSLAEonDegenMatrixNoSolutions(t *testing.T) {
+	degenM := New(3, 3)
+	matr := [][]float64{
+		{1.0, 2.0, 3.0},
+		{4.0, 5.0, 6.0},
+		{7.0, 8.0, 9.0},
+	}
+	degenM.Set(matr)
+
+	err := degenM.LUDecomposition()
+	assert.NoError(t, err)
+
+	b := []float64{1.0, 2.0, 5.0}
+	b_fixed, err := MultOnVecRight(degenM.P, b)
+	assert.NoError(t, err)
+
+	expectedError := errors.New("system has no solutions")
+
+	_, err = degenM.SLAESolution(b_fixed)
+	assert.EqualError(t, err, expectedError.Error())
+}
+
+func TestSLAEonDegenMatrixPartialSolution(t *testing.T) {
+	degenM := New(3, 3)
+	matr := [][]float64{
+		{1.0, 2.0, 3.0},
+		{4.0, 5.0, 6.0},
+		{7.0, 8.0, 9.0},
+	}
+	degenM.Set(matr)
+
+	err := degenM.LUDecomposition()
+	assert.NoError(t, err)
+
+	b := []float64{1.0, 2.0, 3.0}
+	b_fixed, err := MultOnVecRight(degenM.P, b)
+	assert.NoError(t, err)
+
+	x, err := degenM.SLAESolution(b_fixed)
+	assert.NoError(t, err)
+
+	Ax, err := MultOnVecRight(degenM.A, x)
+	require.NoError(t, err)
+
+	assert.True(t, EqualVecs(Ax, b, Eps*Norm(degenM.A)))
 }

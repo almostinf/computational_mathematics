@@ -24,6 +24,29 @@ func (m *Matrix) LUDecomposition() error {
 	}
 
 	for i := 0; i < m.rows; i++ {
+		if math.Abs(m.U[i][i]) < Eps*Norm(m.A) {
+			for j := i + 1; j < m.rows; j++ {
+				if math.Abs(m.U[j][i]) < Eps*Norm(m.A) { //FIXIT
+					m.U[i], m.U[j] = m.U[j], m.U[i]
+					m.L[i], m.L[j] = m.L[j], m.L[i]
+					m.P[i], m.P[j] = m.P[j], m.P[i]
+					i--
+					m.rowExchanges++
+					break
+				}
+			}
+
+			if i >= m.rank {
+				break
+			}
+
+			SwapMatrixCols(m.U, i, m.rank-1)
+			SwapMatrixCols(m.Q, i, m.rank-1)
+			m.rank--
+			i--
+			continue
+		}
+
 		max := m.U[i][i]
 		pivot := i
 		for j := i + 1; j < m.rows; j++ {
@@ -41,7 +64,7 @@ func (m *Matrix) LUDecomposition() error {
 		}
 
 		for k := i + 1; k < m.rows; k++ {
-			if m.U[i][i] != 0 {
+			if math.Abs(m.U[i][i]) > Eps*Norm(m.A) {
 				coef := m.U[k][i] / m.U[i][i]
 				for j := i; j < m.cols; j++ {
 					m.U[k][j] -= m.U[i][j] * coef
@@ -49,7 +72,9 @@ func (m *Matrix) LUDecomposition() error {
 				m.L[k][i] = coef
 			}
 		}
+	}
 
+	for i := 0; i < m.rows; i++ {
 		m.L[i][i] = 1.0
 	}
 
@@ -93,16 +118,10 @@ func (m *Matrix) Inverse() ([][]float64, error) {
 	for i := 0; i < m.rows; i++ {
 		// Solve L*y = I
 		y := make([]float64, m.rows)
-		// y[i] = 1
 
 		for j := 0; j < m.rows; j++ {
 			y[j] = m.P[j][i]
 		}
-
-		// y_fixed, err := MultOnVecRight(m.P, y)
-		// if err != nil {
-		// 	return nil, err
-		// }
 
 		x, err := m.SLAESolution(y)
 		if err != nil {
@@ -152,12 +171,23 @@ func (m *Matrix) SLAESolution(b []float64) ([]float64, error) {
 	// Solve for x in Ux = y using backward substitution
 	x := make([]float64, m.rows)
 	for i := m.rows - 1; i >= 0; i-- {
-		x[i] = y[i]
-		for j := i + 1; j < m.cols; j++ {
-			x[i] -= m.U[i][j] * x[j]
+		if i > m.rank-1 {
+			if math.Abs(m.U[i][i]-y[i]) > Eps*Norm(m.A) {
+				return nil, errors.New("system has no solutions")
+			}
+		} else {
+			x[i] = y[i]
+			for j := i + 1; j < m.cols; j++ {
+				x[i] -= m.U[i][j] * x[j]
+			}
+			x[i] /= m.U[i][i]
 		}
-		x[i] /= m.U[i][i]
 	}
 
-	return x, nil
+	normX, err := MultOnVecRight(m.Q, x)
+	if err != nil {
+		return nil, err
+	}
+
+	return normX, nil
 }
