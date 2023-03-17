@@ -2,6 +2,7 @@ package matrix
 
 import (
 	"errors"
+	"fmt"
 	"math"
 )
 
@@ -24,9 +25,11 @@ func (m *Matrix) LUDecomposition() error {
 	}
 
 	for i := 0; i < m.rows; i++ {
+		Print(m.L, "Degen L debug")
+		Print(m.U, "Degen U debug")
 		if math.Abs(m.U[i][i]) < Eps*Norm(m.A) {
 			for j := i + 1; j < m.rows; j++ {
-				if math.Abs(m.U[j][i]) < Eps*Norm(m.A) { //FIXIT
+				if math.Abs(m.U[j][i]) > Eps*Norm(m.A) {
 					m.U[i], m.U[j] = m.U[j], m.U[i]
 					m.L[i], m.L[j] = m.L[j], m.L[i]
 					m.P[i], m.P[j] = m.P[j], m.P[i]
@@ -47,11 +50,11 @@ func (m *Matrix) LUDecomposition() error {
 			continue
 		}
 
-		max := m.U[i][i]
+		max := math.Abs(m.U[i][i])
 		pivot := i
 		for j := i + 1; j < m.rows; j++ {
 			if math.Abs(m.U[j][i]) > max && m.U[j][i] != 0 {
-				max = m.U[j][i]
+				max = math.Abs(m.U[j][i])
 				pivot = j
 			}
 		}
@@ -168,6 +171,7 @@ func (m *Matrix) SLAESolution(b []float64) ([]float64, error) {
 	// $$ x_m = \frac{b_m - \sum_{i=1}^{m-1}{l_{m,i} \cdot x_i}}{l_{m,m}} $$
 	// wiki: https://en.wikipedia.org/wiki/Triangular_matrix#Forward_and_back_substitution
 
+	fmt.Println("y: ", y)
 	// Solve for x in Ux = y using backward substitution
 	x := make([]float64, m.rows)
 	for i := m.rows - 1; i >= 0; i-- {

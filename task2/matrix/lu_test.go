@@ -110,3 +110,28 @@ func TestSLAEonDegenMatrixPartialSolution(t *testing.T) {
 
 	assert.True(t, EqualVecs(Ax, b, Eps*Norm(degenM.A)))
 }
+
+// func TestSLAEonDegenMatrixPartialSolution2(t *testing.T) {
+// 	degenM := New(3, 3)
+// 	matr := [][]float64{
+// 		{1.0, 2.0, 4.0},
+// 		{2.0, 4.0, 6.0},
+// 		{3.0, 6.0, 9.0},
+// 	}
+// 	degenM.Set(matr)
+
+// 	err := degenM.LUDecomposition()
+// 	assert.NoError(t, err)
+
+// 	b := []float64{2.0, 10.0, 15.0}
+// 	b_fixed, err := MultOnVecRight(degenM.P, b)
+// 	assert.NoError(t, err)
+
+// 	x, err := degenM.SLAESolution(b_fixed)
+// 	assert.NoError(t, err)
+
+// 	Ax, err := MultOnVecRight(degenM.A, x)
+// 	require.NoError(t, err)
+
+// 	assert.True(t, EqualVecs(Ax, b, Eps*Norm(degenM.A)))
+// }

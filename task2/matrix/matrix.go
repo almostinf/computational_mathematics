@@ -11,11 +11,12 @@ import (
 var Eps float64 = math.Pow10(-14)
 
 type Matrix struct {
-	rows, cols    int
-	A, L, U, P, Q [][]float64
-	rowExchanges  int
-	isLU          bool
-	rank          int
+	rows, cols       int
+	A, L, U, P, Q, R [][]float64
+	rowExchanges     int
+	isLU             bool
+	isQR             bool
+	rank             int
 }
 
 func New(rows, cols int) *Matrix {
@@ -27,7 +28,9 @@ func New(rows, cols int) *Matrix {
 		U:    make([][]float64, rows),
 		P:    make([][]float64, rows),
 		Q:    make([][]float64, rows),
+		R:    make([][]float64, rows),
 		isLU: false,
+		isQR: false,
 		rank: rows,
 	}
 
@@ -37,6 +40,7 @@ func New(rows, cols int) *Matrix {
 		matrix.U[i] = make([]float64, cols)
 		matrix.P[i] = make([]float64, cols)
 		matrix.Q[i] = make([]float64, cols)
+		matrix.R[i] = make([]float64, cols)
 	}
 
 	rand.Seed(time.Now().UnixNano())
@@ -53,6 +57,11 @@ func New(rows, cols int) *Matrix {
 		for i := range matrix.P {
 			matrix.P[i][i] = 1.
 			matrix.Q[i][i] = 1.
+		}
+
+		// Initialize R matrix
+		for i := range matrix.A {
+			copy(matrix.R[i], matrix.A[i])
 		}
 	}
 
@@ -252,11 +261,35 @@ func IsEye(matrix [][]float64, eps float64) bool {
 }
 
 func SwapMatrixCols(matrix [][]float64, col1, col2 int) {
-	for i := 0; i < col1; i++ {
+	for i := 0; i < len(matrix); i++ {
 		matrix[i][col1], matrix[i][col2] = matrix[i][col2], matrix[i][col1]
 	}
 }
 
 func (m *Matrix) GetRank() int {
 	return m.rank
+}
+
+func Eye(n int) [][]float64 {
+	A := make([][]float64, n)
+	for i := range A {
+		A[i] = make([]float64, n)
+		A[i][i] = 1
+	}
+	return A
+}
+
+func Transpose(matrix [][]float64) [][]float64 {
+	numRows := len(matrix)
+	numCols := len(matrix[0])
+	transposed := make([][]float64, numCols)
+	for i := range transposed {
+		transposed[i] = make([]float64, numRows)
+	}
+	for i := 0; i < numRows; i++ {
+		for j := 0; j < numCols; j++ {
+			transposed[j][i] = matrix[i][j]
+		}
+	}
+	return transposed
 }
