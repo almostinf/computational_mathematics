@@ -6,12 +6,12 @@ import (
 )
 
 // Use Givens method
-// Here is explanation: https://www.tspi.at/2021/12/08/qrgivens.html
+// Here is an explanation: https://www.tspi.at/2021/12/08/qrgivens.html
 func (m *Matrix) QR() error {
-    if m.isQR {
-        return errors.New("QR decomposition is also done")
-    }
-    m.isQR = true
+	if m.isQR {
+		return errors.New("QR decomposition is also done")
+	}
+	m.isQR = true
 
 	m.Q = Eye(m.rows)
 	G := Eye(m.rows)
@@ -35,30 +35,30 @@ func (m *Matrix) QR() error {
 		}
 	}
 
-    m.Q = Transpose(m.Q)
+	m.Q = Transpose(m.Q)
 
-    return nil
+	return nil
 }
 
 func (m *Matrix) SolveQR(b []float64) ([]float64, error) {
-    if !m.isQR {
-        m.QR()
-    }
+	if !m.isQR {
+		m.QR()
+	}
 
-    QT := Transpose(m.Q)
+	QT := Transpose(m.Q)
 
-    Qb, err := MultOnVecRight(QT, b)
-    if err != nil {
-        return nil, err
-    }
+	Qb, err := MultOnVecRight(QT, b)
+	if err != nil {
+		return nil, err
+	}
 
-    x := make([]float64, m.cols)
-    for i := m.rows - 1; i >= 0; i-- {
-        x[i] = Qb[i]
-        for j := i + 1; j < m.cols; j++ {
-            x[i] -= m.R[i][j] * x[j]
-        }
-        x[i] /= m.R[i][i]
-    }
-    return x, nil
+	x := make([]float64, m.cols)
+	for i := m.rows - 1; i >= 0; i-- {
+		x[i] = Qb[i]
+		for j := i + 1; j < m.cols; j++ {
+			x[i] -= m.R[i][j] * x[j]
+		}
+		x[i] /= m.R[i][i]
+	}
+	return x, nil
 }

@@ -13,7 +13,7 @@ func TestQRDecomposition(t *testing.T) {
 	require.NoError(t, err)
 
 	qr := Mult(m.Q, m.R)
-	assert.True(t, EqualMatrixes(m.A, qr, Eps * Norm(m.A)))
+	assert.True(t, EqualMatrixes(m.A, qr, Eps*Norm(m.A)))
 }
 
 func TestQRSLAESolution(t *testing.T) {
@@ -26,5 +26,5 @@ func TestQRSLAESolution(t *testing.T) {
 	Ax, err := MultOnVecRight(m.A, x)
 	require.NoError(t, err)
 
-	assert.True(t, EqualVecs(Ax, b, Eps * Norm(m.A)))
+	assert.True(t, EqualVecs(Ax, b, Eps*Norm(m.A)))
 }

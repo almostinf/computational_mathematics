@@ -48,7 +48,7 @@ func New(rows, cols int) *Matrix {
 	// Initialize A matrix
 	for i, r := range matrix.A {
 		for j := range r {
-			matrix.A[i][j] = rand.Float64() * 100
+			matrix.A[i][j] = rand.Float64() * 10
 		}
 	}
 
@@ -149,7 +149,7 @@ func GetRandomVector(size int) []float64 {
 
 	// Fill with random numbers
 	for i := range res {
-		res[i] = rand.Float64() * 100
+		res[i] = rand.Float64() * 10
 	}
 
 	return res
@@ -292,4 +292,87 @@ func Transpose(matrix [][]float64) [][]float64 {
 		}
 	}
 	return transposed
+}
+
+func Zeros(n int) [][]float64 {
+	m := make([][]float64, n)
+	for i := range m {
+		m[i] = make([]float64, n)
+	}
+	return m
+}
+
+func Sum(A [][]float64, B [][]float64) [][]float64 {
+	m := len(A)
+	n := len(A[0])
+
+	C := Zeros(m)
+
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			C[i][j] = A[i][j] + B[i][j]
+		}
+	}
+
+	return C
+}
+
+func Negative(A [][]float64) [][]float64 {
+	m := len(A)
+	n := len(A[0])
+
+	B := Zeros(m)
+
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			B[i][j] = -A[i][j]
+		}
+	}
+
+	return B
+}
+
+func SumVectors(A, B []float64) []float64 {
+	C := make([]float64, len(A))
+	for i := range A {
+		C[i] = A[i] + B[i]
+	}
+	return C
+}
+
+func DiffVectors(A, B []float64) []float64 {
+	C := make([]float64, len(A))
+	for i := range A {
+		C[i] = A[i] - B[i]
+	}
+	return C
+}
+
+func NormVector(v []float64) float64 {
+	var sumOfSquares float64
+	for _, x := range v {
+		sumOfSquares += x * x
+	}
+	return math.Sqrt(sumOfSquares)
+}
+
+func GetMatrixDiagonalDominance(n int) *Matrix {
+	m := New(n, n)
+
+	for i, r := range m.A {
+		sum := 0.0
+		for j := range r {
+			sum += math.Abs(m.A[i][j])
+		}
+		m.A[i][i] = sum
+	}
+
+	return m
+}
+
+func GetPositivelyDefiniteMatrix(N int) *Matrix {
+	m := New(N, N)
+	trans := Transpose(m.A)
+	m.A = Mult(m.A, trans)
+	return m
 }

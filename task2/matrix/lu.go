@@ -25,8 +25,6 @@ func (m *Matrix) LUDecomposition() error {
 	}
 
 	for i := 0; i < m.rows; i++ {
-		Print(m.L, "Degen L debug")
-		Print(m.U, "Degen U debug")
 		if math.Abs(m.U[i][i]) < Eps*Norm(m.A) {
 			for j := i + 1; j < m.rows; j++ {
 				if math.Abs(m.U[j][i]) > Eps*Norm(m.A) {

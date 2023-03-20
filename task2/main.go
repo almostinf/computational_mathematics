@@ -37,7 +37,7 @@ func main() {
 	// degen_m := matrix.New(N, N)
 
 	// for i := 0; i < N; i++ {
-	// 	degen_m.A[i][2] = degen_m.A[i][0] + degen_m.A[i][1] 
+	// 	degen_m.A[i][2] = degen_m.A[i][0] + degen_m.A[i][1]
 	// 	degen_m.A[i][3] = degen_m.A[i][0] - degen_m.A[i][1]
 	// }
 
@@ -56,10 +56,11 @@ func main() {
 	// fmt.Println()
 
 	// degen_b := matrix.GetRandomVector(N)
-	// fmt.Println("degen_b: ", degen_b)
+	// m_b,_ := matrix.MultOnVecRight(degen_m.A, degen_b)
+	// fmt.Println("degen_b: ", m_b)
 	// fmt.Println()
 
-	// fixed_b, _ := matrix.MultOnVecRight(degen_m.P, degen_b)
+	// fixed_b, _ := matrix.MultOnVecRight(degen_m.P, m_b)
 	// fmt.Println("fixed_b: ", fixed_b)
 	// fmt.Println()
 
@@ -99,5 +100,55 @@ func main() {
 
 	x, _ := m.SolveQR(b)
 	Ax, _ := matrix.MultOnVecRight(m.A, x)
+	fmt.Println("Ax: ", Ax)
+
+	m = matrix.GetMatrixDiagonalDominance(N)
+
+	x, iterations, prioriEstimate := m.JacobiMethod(b)
+	fmt.Println("Jacobi")
+	fmt.Println("x: ", x)
+	fmt.Println("iterations: ", iterations)
+	fmt.Println("priori estimate: ", prioriEstimate)
+
+	Ax, _ = matrix.MultOnVecRight(m.A, x)
+	fmt.Println("Ax: ", Ax)
+
+	fmt.Println()
+
+	x, iterations, prioriEstimate = m.SeidelMethod(b)
+	fmt.Println("Seidel")
+	fmt.Println("x: ", x)
+	fmt.Println("iterations: ", iterations)
+	fmt.Println("priori estimate: ", prioriEstimate)
+
+	Ax, _ = matrix.MultOnVecRight(m.A, x)
+	fmt.Println("Ax: ", Ax)
+
+	fmt.Println()
+	fmt.Println("-------------------------")
+	fmt.Println()
+
+	pm := matrix.GetPositivelyDefiniteMatrix(N)
+	matrix.Print(pm.A, "Positive matrix")
+	fmt.Println()
+
+	x, iterations, prioriEstimate = pm.JacobiMethod(b)
+	fmt.Println("Jacobi")
+	fmt.Println("x: ", x)
+	fmt.Println("iterations: ", iterations)
+	fmt.Println("priori estimate: ", prioriEstimate)
+
+	Ax, _ = matrix.MultOnVecRight(pm.A, x)
+	fmt.Println("Ax: ", Ax)
+
+	fmt.Println()
+
+	x, iterations, prioriEstimate = pm.SeidelMethod(b)
+	fmt.Println("Seidel")
+	fmt.Println("x: ", x)
+	fmt.Println("iterations: ", iterations)
+	fmt.Println("priori estimate: ", prioriEstimate)
+
+	Ax, _ = matrix.MultOnVecRight(pm.A, x)
 	fmt.Println("Ax: ", Ax)
 }
