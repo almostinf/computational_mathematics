@@ -2,15 +2,14 @@ package matrix
 
 import (
 	"errors"
-	"fmt"
 	"math"
 )
 
 func (m *Matrix) LUDecomposition() error {
-	if m.isLU {
+	if m.IsLU {
 		return nil
 	}
-	m.isLU = true
+	m.IsLU = true
 
 	// Check if A is square
 	if m.rows != m.cols {
@@ -33,6 +32,7 @@ func (m *Matrix) LUDecomposition() error {
 					m.P[i], m.P[j] = m.P[j], m.P[i]
 					i--
 					m.rowExchanges++
+					m.Operations += 2
 					break
 				}
 			}
@@ -62,13 +62,16 @@ func (m *Matrix) LUDecomposition() error {
 			m.P[i], m.P[pivot] = m.P[pivot], m.P[i]
 			m.L[i], m.L[pivot] = m.L[pivot], m.L[i]
 			m.rowExchanges++
+			m.Operations++
 		}
 
 		for k := i + 1; k < m.rows; k++ {
 			if math.Abs(m.U[i][i]) > Eps*Norm(m.A) {
 				coef := m.U[k][i] / m.U[i][i]
+				m.Operations++
 				for j := i; j < m.cols; j++ {
 					m.U[k][j] -= m.U[i][j] * coef
+					m.Operations += 2
 				}
 				m.L[k][i] = coef
 			}
@@ -122,6 +125,7 @@ func (m *Matrix) Inverse() ([][]float64, error) {
 
 		for j := 0; j < m.rows; j++ {
 			y[j] = m.P[j][i]
+			m.Operations++
 		}
 
 		x, err := m.SLAESolution(y)
@@ -132,6 +136,7 @@ func (m *Matrix) Inverse() ([][]float64, error) {
 		// Set the i-th column of the inverse matrix
 		for j := 0; j < m.rows; j++ {
 			inverse[j][i] = x[j]
+			m.Operations++
 		}
 	}
 
@@ -160,8 +165,10 @@ func (m *Matrix) SLAESolution(b []float64) ([]float64, error) {
 	y := make([]float64, m.rows)
 	for i := 0; i < m.rows; i++ {
 		y[i] = b[i]
+		m.Operations++
 		for j := 0; j < i; j++ {
 			y[i] -= m.L[i][j] * y[j]
+			m.Operations++
 		}
 	}
 
@@ -169,7 +176,6 @@ func (m *Matrix) SLAESolution(b []float64) ([]float64, error) {
 	// $$ x_m = \frac{b_m - \sum_{i=1}^{m-1}{l_{m,i} \cdot x_i}}{l_{m,m}} $$
 	// wiki: https://en.wikipedia.org/wiki/Triangular_matrix#Forward_and_back_substitution
 
-	fmt.Println("y: ", y)
 	// Solve for x in Ux = y using backward substitution
 	x := make([]float64, m.rows)
 	for i := m.rows - 1; i >= 0; i-- {
@@ -181,12 +187,16 @@ func (m *Matrix) SLAESolution(b []float64) ([]float64, error) {
 			x[i] = y[i]
 			for j := i + 1; j < m.cols; j++ {
 				x[i] -= m.U[i][j] * x[j]
+				m.Operations += 2
 			}
 			x[i] /= m.U[i][i]
+			m.Operations++
 		}
 	}
 
 	normX, err := MultOnVecRight(m.Q, x)
+	m.Operations += m.cols * m.rows
+	
 	if err != nil {
 		return nil, err
 	}

@@ -14,9 +14,10 @@ type Matrix struct {
 	rows, cols       int
 	A, L, U, P, Q, R [][]float64
 	rowExchanges     int
-	isLU             bool
+	IsLU             bool
 	isQR             bool
 	rank             int
+	Operations       int
 }
 
 func New(rows, cols int) *Matrix {
@@ -29,9 +30,10 @@ func New(rows, cols int) *Matrix {
 		P:    make([][]float64, rows),
 		Q:    make([][]float64, rows),
 		R:    make([][]float64, rows),
-		isLU: false,
+		IsLU: false,
 		isQR: false,
 		rank: rows,
+		Operations: 0,
 	}
 
 	for i := range matrix.A {
@@ -66,6 +68,10 @@ func New(rows, cols int) *Matrix {
 	}
 
 	return matrix
+}
+
+func (m *Matrix) Reset() {
+
 }
 
 func (m *Matrix) Set(matrix [][]float64) error {
@@ -375,4 +381,22 @@ func GetPositivelyDefiniteMatrix(N int) *Matrix {
 	trans := Transpose(m.A)
 	m.A = Mult(m.A, trans)
 	return m
+}
+
+func NegativeVec(v []float64) []float64 {
+	neg := make([]float64, len(v))
+	for i := range v {
+		neg[i] = -v[i]
+	}
+	return neg
+}
+
+func MaxInVec(v []float64) float64 {
+	max := math.Abs(v[0])
+	for i := range v {
+		if math.Abs(v[i]) > max {
+			max = math.Abs(v[i])
+		}
+	}
+	return max
 }
