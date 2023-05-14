@@ -2,6 +2,7 @@ package matrix
 
 import (
 	"errors"
+	"fmt"
 	"math"
 )
 
@@ -32,7 +33,6 @@ func (m *Matrix) LUDecomposition() error {
 					m.P[i], m.P[j] = m.P[j], m.P[i]
 					i--
 					m.rowExchanges++
-					m.Operations += 2
 					break
 				}
 			}
@@ -41,10 +41,17 @@ func (m *Matrix) LUDecomposition() error {
 				break
 			}
 
-			SwapMatrixCols(m.U, i, m.rank-1)
-			SwapMatrixCols(m.Q, i, m.rank-1)
+			fmt.Println(i, m.rank)
+
+			if m.rank - 1 > i && i >= 0 {
+				SwapMatrixCols(m.U, i, m.rank-1)
+				SwapMatrixCols(m.Q, i, m.rank-1)
+			}
+
 			m.rank--
-			i--
+			if i >= 0 {
+				i--
+			}
 			continue
 		}
 
@@ -62,7 +69,6 @@ func (m *Matrix) LUDecomposition() error {
 			m.P[i], m.P[pivot] = m.P[pivot], m.P[i]
 			m.L[i], m.L[pivot] = m.L[pivot], m.L[i]
 			m.rowExchanges++
-			m.Operations++
 		}
 
 		for k := i + 1; k < m.rows; k++ {
@@ -71,7 +77,7 @@ func (m *Matrix) LUDecomposition() error {
 				m.Operations++
 				for j := i; j < m.cols; j++ {
 					m.U[k][j] -= m.U[i][j] * coef
-					m.Operations += 2
+					m.Operations++
 				}
 				m.L[k][i] = coef
 			}
@@ -165,7 +171,6 @@ func (m *Matrix) SLAESolution(b []float64) ([]float64, error) {
 	y := make([]float64, m.rows)
 	for i := 0; i < m.rows; i++ {
 		y[i] = b[i]
-		m.Operations++
 		for j := 0; j < i; j++ {
 			y[i] -= m.L[i][j] * y[j]
 			m.Operations++
@@ -187,7 +192,7 @@ func (m *Matrix) SLAESolution(b []float64) ([]float64, error) {
 			x[i] = y[i]
 			for j := i + 1; j < m.cols; j++ {
 				x[i] -= m.U[i][j] * x[j]
-				m.Operations += 2
+				m.Operations++
 			}
 			x[i] /= m.U[i][i]
 			m.Operations++

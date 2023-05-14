@@ -156,8 +156,8 @@ func (n *NewtonMethod) InitX() {
 	n.X[1] = 0.5
 	n.X[2] = 1.5
 	n.X[3] = -1
-	n.X[4] = -0.5
-	n.X[5] = 1.5
+	n.X[4] = -0.5 // 1.5
+	n.X[5] = -0.5 
 	n.X[6] = 0.5
 	n.X[7] = -0.5
 	n.X[8] = 1.5
@@ -194,11 +194,10 @@ func (n *NewtonMethod) SolveSystem() {
 			fmt.Println(err)
 			return
 		}
-		operations += n.size * n.size
+		operations += n.size
 
 		dx, err := n.J.SLAESolution(fixedF)
-
-		operations += 10 * 10
+		operations += n.J.Operations
 
 		// fmt.Println("F: ", n.F)
 		// fmt.Println("dx: ", dx)
@@ -214,15 +213,14 @@ func (n *NewtonMethod) SolveSystem() {
 		}
 
 		if matrix.MaxInVec(dx) < Eps {
-			fmt.Println("J: ", n.J.A)
-			fmt.Println("F: ", n.F)
-			fmt.Println("dx: ", dx)
+			// fmt.Println("J: ", n.J.A)
+			// fmt.Println("F: ", n.F)
+			// fmt.Println("dx: ", dx)
 			break
 		}
 		iterations++
 	}
 
-	operations += n.J.Operations
 	dur := time.Since(now).Seconds()
 	fmt.Println("Solution: ", n.X)
 	fmt.Println("Number of operations: ", operations)
@@ -240,14 +238,14 @@ func (n *NewtonMethod) ModifiedSolveSystem() {
 	now := time.Now()
 
 	n.InitX()
+	n.InitJ()
 	err := n.J.LUDecomposition()
-
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	for {
+	for iterations < 1000 {
 		n.InitF()
 
 		fixedF, err := matrix.MultOnVecRight(n.J.P, n.F)
@@ -258,8 +256,6 @@ func (n *NewtonMethod) ModifiedSolveSystem() {
 		operations += n.size * n.size
 
 		dx, err := n.J.SLAESolution(fixedF)
-
-		operations += 10 * 10
 
 		// fmt.Println("F: ", n.F)
 		// fmt.Println("dx: ", dx)
@@ -274,13 +270,14 @@ func (n *NewtonMethod) ModifiedSolveSystem() {
 			operations++
 		}
 
-		if matrix.MaxInVec(dx) < Eps {
-			fmt.Println("J: ", n.J.A)
-			fmt.Println("F: ", n.F)
-			fmt.Println("dx: ", dx)
-			break
+		if matrix.MaxInVec(dx) > Eps {
+			iterations++
+			continue
+			// fmt.Println("J: ", n.J.A)
+			// fmt.Println("F: ", n.F)
+			// fmt.Println("dx: ", dx)
 		}
-		iterations++
+		break
 	}
 
 	operations += n.J.Operations
@@ -293,9 +290,9 @@ func (n *NewtonMethod) ModifiedSolveSystem() {
 	fmt.Println()
 }
 
-func (n *NewtonMethod) SolveSystemWithKIterations(k int) {
+func (n *NewtonMethod) ModifiedSolveSystemOnlyKIterations(k int) {
 	fmt.Println("--------------------------------------------------")
-	fmt.Println("NEWTON METHOD WITH RECOUNTING J EVERY K ITERATIONS")
+	fmt.Println("MODIFIED METHOD OF NEWTON AFTER K ITERATIONS")
 	operations := 0
 	iterations := 0
 	now := time.Now()
@@ -308,10 +305,11 @@ func (n *NewtonMethod) SolveSystemWithKIterations(k int) {
 		return
 	}
 
-	for {
+	for iterations < 1000 {
 		n.InitF()
 
-		if iterations%k == 0 {
+		if k >= 0 {
+			operations += n.J.Operations
 			n.InitJ()
 
 			err := n.J.LUDecomposition()
@@ -330,7 +328,77 @@ func (n *NewtonMethod) SolveSystemWithKIterations(k int) {
 
 		dx, err := n.J.SLAESolution(fixedF)
 
-		operations += 10 * 10
+		// fmt.Println("F: ", n.F)
+		// fmt.Println("dx: ", dx)
+
+		if err != nil {
+			fmt.Println("Error: matrix and vector dimensions don't match")
+			return
+		}
+
+		for i := range n.X {
+			n.X[i] -= dx[i]
+			operations++
+		}
+
+		if matrix.MaxInVec(dx) > Eps {
+			k--
+			iterations++
+			continue
+			// fmt.Println("J: ", n.J.A)
+			// fmt.Println("F: ", n.F)
+			// fmt.Println("dx: ", dx)
+		}
+		break
+	}
+
+	operations += n.J.Operations
+	dur := time.Since(now).Seconds()
+	fmt.Println("Solution: ", n.X)
+	fmt.Println("Number of operations: ", operations)
+	fmt.Println("Number of iterations: ", iterations)
+	fmt.Println("Elapsed time in second: ", dur)
+	fmt.Println("--------------------------------------------------")
+	fmt.Println()
+}
+
+func (n *NewtonMethod) SolveSystemWithMIterations(m int) {
+	fmt.Println("--------------------------------------------------")
+	fmt.Println("NEWTON METHOD WITH RECOUNTING J EVERY M ITERATIONS")
+	operations := 0
+	iterations := 0
+	now := time.Now()
+	n.InitX()
+	n.InitJ()
+
+	err := n.J.LUDecomposition()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for iterations < 1000 {
+		n.InitF()
+
+		if iterations%m == 0 {
+			operations += n.J.Operations
+			n.InitJ()
+
+			err := n.J.LUDecomposition()
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+		}
+
+		fixedF, err := matrix.MultOnVecRight(n.J.P, n.F)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		operations += n.size * n.size
+
+		dx, err := n.J.SLAESolution(fixedF)
 
 		// fmt.Println("F: ", n.F)
 		// fmt.Println("dx: ", dx)
@@ -345,13 +413,14 @@ func (n *NewtonMethod) SolveSystemWithKIterations(k int) {
 			operations++
 		}
 
-		if matrix.MaxInVec(dx) < Eps {
-			fmt.Println("J: ", n.J.A)
-			fmt.Println("F: ", n.F)
-			fmt.Println("dx: ", dx)
-			break
+		if matrix.MaxInVec(dx) > Eps {
+			iterations++
+			continue
+			// fmt.Println("J: ", n.J.A)
+			// fmt.Println("F: ", n.F)
+			// fmt.Println("dx: ", dx)
 		}
-		iterations++
+		break
 	}
 
 	operations += n.J.Operations
@@ -379,10 +448,11 @@ func (n *NewtonMethod) MethodsTransition(m, k int) {
 		return
 	}
 
-	for {
+	for iterations < 1000 {
 		n.InitF()
 
-		if m > 0 || iterations%k == 0 {
+		if m >= 0 || iterations%k == 0 {
+			operations += n.J.Operations
 			n.InitJ()
 
 			err := n.J.LUDecomposition()
@@ -401,8 +471,6 @@ func (n *NewtonMethod) MethodsTransition(m, k int) {
 
 		dx, err := n.J.SLAESolution(fixedF)
 
-		operations += 10 * 10
-
 		// fmt.Println("F: ", n.F)
 		// fmt.Println("dx: ", dx)
 
@@ -416,15 +484,15 @@ func (n *NewtonMethod) MethodsTransition(m, k int) {
 			operations++
 		}
 
-		if matrix.MaxInVec(dx) < Eps {
-			fmt.Println("J: ", n.J.A)
-			fmt.Println("F: ", n.F)
-			fmt.Println("dx: ", dx)
-			break
+		if matrix.MaxInVec(dx) > Eps {
+			m--
+			iterations++
+			continue
+			// fmt.Println("J: ", n.J.A)
+			// fmt.Println("F: ", n.F)
+			// fmt.Println("dx: ", dx)
 		}
-
-		iterations++
-		m--
+		break
 	}
 
 	operations += n.J.Operations
