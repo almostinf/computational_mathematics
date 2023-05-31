@@ -116,52 +116,6 @@ func NewtonCotesLim(a, b, step, alpha float64, f func(x float64) float64) float6
 	return ans
 }
 
-// func cardano(x []float64, coef []float64) []float64 {
-// 	a, b, c, d := coef[0], coef[1], coef[2], coef[3]
-
-// 	p := (3*a*c - b*b) / (3 * a * a)
-// 	q := (2*b*b*b - 9*a*b*c + 27*a*a*d) / (27 * a * a * a)
-
-// 	delta := q*q/4 + p*p*p/27
-
-// 	if delta > 0 {
-// 		u := math.Cbrt(-q/2 + math.Sqrt(delta))
-// 		v := math.Cbrt(-q/2 - math.Sqrt(delta))
-// 		ans := []float64{
-// 			u + v - b/(3*a),
-// 		}
-// 		return ans
-// 	} else if delta == 0 {
-// 		if q < 0 {
-// 			u := -math.Cbrt(-q / 2)
-// 			ans := []float64{
-// 				2*u - b/(3*a),
-// 				-u - b/(3*a),
-// 			}
-// 			return ans
-// 		} else {
-// 			u := math.Cbrt(q / 2)
-// 			ans := []float64{
-// 				-2*u - b/(3*a),
-// 				u - b/(3*a),
-// 			}
-// 			return ans
-// 		}
-// 	} else {
-// 		t := -q / 2
-// 		phi := math.Acos(t / math.Sqrt(-p*p*p/27))
-// 		u1 := 2 * math.Cbrt(-p/3) * math.Cos(phi/3)
-// 		u2 := 2 * math.Cbrt(-p/3) * math.Cos(phi/3+2*math.Pi/3)
-// 		u3 := 2 * math.Cbrt(-p/3) * math.Cos(phi/3+4*math.Pi/3)
-// 		ans := []float64{
-// 			u1 - b/(3*a),
-// 			u2 - b/(3*a),
-// 			u3 - b/(3*a),
-// 		}
-// 		return ans
-// 	}
-// }
-
 func kardano(a, x []float64) []float64 {
 	a[0], a[2] = a[2], a[0]
 
