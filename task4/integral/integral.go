@@ -68,54 +68,6 @@ func NewtonCotes(low, high, b, step, alpha float64, f func(x float64) float64) f
 	return math.Abs(ans)
 }
 
-func NewtonCotesLim(a, b, step, alpha float64, f func(x float64) float64) float64 {
-	var ans float64
-	lim1 := a
-	lim2 := lim1 + step
-	n := int(math.Round((b - lim2) / step))
-
-	for i := 0; i < n; i++ {
-		moments := getMoments(a, alpha, lim2, lim1)
-		neededMoments := []float64{moments[0], moments[1], moments[2]}
-
-		nodes := []float64{lim1, (lim1 + lim2) / 2, lim2}
-		A := matrix.New(3, 3)
-		A.A[0][0] = 1
-		A.A[0][1] = 1
-		A.A[0][2] = 1
-		A.A[1][0] = nodes[0]
-		A.A[1][1] = nodes[1]
-		A.A[1][2] = nodes[2]
-		A.A[2][0] = nodes[0] * nodes[0]
-		A.A[2][1] = nodes[1] * nodes[1]
-		A.A[2][2] = nodes[2] * nodes[2]
-
-		err := A.LUDecomposition()
-		if err != nil {
-			log.Fatal("Newton Cotes LU: ", err)
-		}
-
-		fixedMoments, err := matrix.MultOnVecRight(A.P, neededMoments)
-		if err != nil {
-			log.Fatal("Newton Cots mult on matrix P: ", err)
-		}
-
-		s, err := A.SLAESolution(fixedMoments)
-		if err != nil {
-			log.Fatal("Newton Cots SLAE Solution: ", err)
-		}
-
-		for j := 0; j < 3; j++ {
-			ans += s[j] * f(nodes[j])
-		}
-
-		lim1 += step
-		lim2 += step
-	}
-
-	return ans
-}
-
 func kardano(a, x []float64) []float64 {
 	a[0], a[2] = a[2], a[0]
 
