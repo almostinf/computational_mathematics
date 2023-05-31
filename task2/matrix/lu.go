@@ -2,7 +2,6 @@ package matrix
 
 import (
 	"errors"
-	"fmt"
 	"math"
 )
 
@@ -41,9 +40,7 @@ func (m *Matrix) LUDecomposition() error {
 				break
 			}
 
-			fmt.Println(i, m.rank)
-
-			if m.rank - 1 > i && i >= 0 {
+			if m.rank-1 > i && i >= 0 {
 				SwapMatrixCols(m.U, i, m.rank-1)
 				SwapMatrixCols(m.Q, i, m.rank-1)
 			}
@@ -201,7 +198,7 @@ func (m *Matrix) SLAESolution(b []float64) ([]float64, error) {
 
 	normX, err := MultOnVecRight(m.Q, x)
 	m.Operations += m.cols * m.rows
-	
+
 	if err != nil {
 		return nil, err
 	}
