@@ -80,6 +80,7 @@ func main() {
 	fmt.Println("-----------------------------------------------------")
 	fmt.Println("Finding hOpt for Newton Cots: ")
 	hOpt := (b - a) / math.Ceil((b-a)/(step*l*math.Pow((eps/err), 1./deg)))
+	err = 1.
 
 	ans = getAnswerWithAccuracy(a, b, alpha, hOpt, &err, f, integral.NewtonCotes)
 
