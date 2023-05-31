@@ -26,4 +26,4 @@ Implementation of Newton method and modified Newton method of scalar nonlinear a
 - error estimated by Richardson method
 - the speed of convergence is estimated by the Aitken rule
 
-This is my variant: f(x) = 3 cos(1.5x) exp(x/4) + 4 sin(3.5x) exp(-3x) + 4x, a= 2.5, b= 3.3, α=2/3, β= 0
+This is my variant: `f(x) = 3 cos(1.5x) exp(x/4) + 4 sin(3.5x) exp(-3x) + 4x, a= 2.5, b= 3.3, α=2/3, β= 0`
