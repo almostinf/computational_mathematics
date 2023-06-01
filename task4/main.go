@@ -16,9 +16,9 @@ func getAnswerWithAccuracy(a, b, alpha, step float64, err *float64, f func(x flo
 	high := 0.
 	ans := 0.
 	l := 2.
-	deg := 4.
 
 	for *err > eps {
+		step *= l
 		high = a + step
 		ans = method(a, high, b, step, alpha, f)
 
@@ -29,16 +29,18 @@ func getAnswerWithAccuracy(a, b, alpha, step float64, err *float64, f func(x flo
 		step /= l
 		high = a + step
 		ans3 := method(a, high, b, step, alpha, f)
-		
+
 		speed := -math.Log(math.Abs((ans3-ans2)/(ans2-ans))) / math.Log(l)
 
-		*err = math.Abs((ans2 - ans) / (math.Pow(l, deg) - 1))
-		ans += (ans2 - ans) / (1 - math.Pow(l, -deg))
+		*err = math.Abs((ans3 - ans2) / (math.Pow(l, speed) - 1))
+
+		ans = ans3
 		fmt.Println("Answer: ", ans)
 		fmt.Println("Expected: ", expectedValue)
 		fmt.Println("Mistake: ", math.Abs(ans-expectedValue))
 		fmt.Println("Error: ", *err)
 		fmt.Println("Speed: ", speed)
+		fmt.Println("Step: ", step)
 		fmt.Println()
 	}
 
@@ -57,7 +59,9 @@ func main() {
 
 	fmt.Println("-----------------------------------------------------")
 	fmt.Println("Newton Cots: ")
+
 	ans := integral.NewtonCotes(a, b, b, 1, alpha, f)
+
 	fmt.Println("Ans: ", ans)
 	fmt.Println("Expected: ", expectedValue)
 	fmt.Println("Mistake: ", math.Abs(ans-expectedValue))
@@ -67,7 +71,7 @@ func main() {
 	fmt.Println("Newton Cots modified: ")
 	step := (b - a) / 10
 	l := 2.
-	deg := 4.
+	deg := 3.
 	err := 1.
 
 	ans = getAnswerWithAccuracy(a, b, alpha, step, &err, f, integral.NewtonCotes)
