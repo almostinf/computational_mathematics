@@ -156,8 +156,8 @@ func (n *NewtonMethod) InitX() {
 	n.X[1] = 0.5
 	n.X[2] = 1.5
 	n.X[3] = -1
-	n.X[4] = -0.5 // 1.5
-	n.X[5] = -0.5 
+	n.X[4] = -0.5
+	n.X[5] = 1.5 
 	n.X[6] = 0.5
 	n.X[7] = -0.5
 	n.X[8] = 1.5
@@ -176,13 +176,6 @@ func (n *NewtonMethod) SolveSystem() {
 		n.InitF()
 		n.InitJ()
 
-		// inv, err := n.J.Inverse()
-		// if err != nil {
-		// 	fmt.Println("Error: singular matrix")
-		// 	return
-		// }
-
-		// dx, err := matrix.MultOnVecRight(inv, n.F)
 		err := n.J.LUDecomposition()
 		if err != nil {
 			fmt.Println(err)
@@ -199,9 +192,6 @@ func (n *NewtonMethod) SolveSystem() {
 		dx, err := n.J.SLAESolution(fixedF)
 		operations += n.J.Operations
 
-		// fmt.Println("F: ", n.F)
-		// fmt.Println("dx: ", dx)
-
 		if err != nil {
 			fmt.Println("Error: matrix and vector dimensions don't match")
 			return
@@ -213,9 +203,6 @@ func (n *NewtonMethod) SolveSystem() {
 		}
 
 		if matrix.MaxInVec(dx) < Eps {
-			// fmt.Println("J: ", n.J.A)
-			// fmt.Println("F: ", n.F)
-			// fmt.Println("dx: ", dx)
 			break
 		}
 		iterations++
@@ -257,9 +244,6 @@ func (n *NewtonMethod) ModifiedSolveSystem() {
 
 		dx, err := n.J.SLAESolution(fixedF)
 
-		// fmt.Println("F: ", n.F)
-		// fmt.Println("dx: ", dx)
-
 		if err != nil {
 			fmt.Println("Error: matrix and vector dimensions don't match")
 			return
@@ -273,9 +257,6 @@ func (n *NewtonMethod) ModifiedSolveSystem() {
 		if matrix.MaxInVec(dx) > Eps {
 			iterations++
 			continue
-			// fmt.Println("J: ", n.J.A)
-			// fmt.Println("F: ", n.F)
-			// fmt.Println("dx: ", dx)
 		}
 		break
 	}
@@ -328,9 +309,6 @@ func (n *NewtonMethod) ModifiedSolveSystemOnlyKIterations(k int) {
 
 		dx, err := n.J.SLAESolution(fixedF)
 
-		// fmt.Println("F: ", n.F)
-		// fmt.Println("dx: ", dx)
-
 		if err != nil {
 			fmt.Println("Error: matrix and vector dimensions don't match")
 			return
@@ -345,9 +323,6 @@ func (n *NewtonMethod) ModifiedSolveSystemOnlyKIterations(k int) {
 			k--
 			iterations++
 			continue
-			// fmt.Println("J: ", n.J.A)
-			// fmt.Println("F: ", n.F)
-			// fmt.Println("dx: ", dx)
 		}
 		break
 	}
@@ -400,9 +375,6 @@ func (n *NewtonMethod) SolveSystemWithMIterations(m int) {
 
 		dx, err := n.J.SLAESolution(fixedF)
 
-		// fmt.Println("F: ", n.F)
-		// fmt.Println("dx: ", dx)
-
 		if err != nil {
 			fmt.Println("Error: matrix and vector dimensions don't match")
 			return
@@ -416,9 +388,6 @@ func (n *NewtonMethod) SolveSystemWithMIterations(m int) {
 		if matrix.MaxInVec(dx) > Eps {
 			iterations++
 			continue
-			// fmt.Println("J: ", n.J.A)
-			// fmt.Println("F: ", n.F)
-			// fmt.Println("dx: ", dx)
 		}
 		break
 	}
@@ -471,9 +440,6 @@ func (n *NewtonMethod) MethodsTransition(m, k int) {
 
 		dx, err := n.J.SLAESolution(fixedF)
 
-		// fmt.Println("F: ", n.F)
-		// fmt.Println("dx: ", dx)
-
 		if err != nil {
 			fmt.Println("Error: matrix and vector dimensions don't match")
 			return
@@ -488,9 +454,6 @@ func (n *NewtonMethod) MethodsTransition(m, k int) {
 			m--
 			iterations++
 			continue
-			// fmt.Println("J: ", n.J.A)
-			// fmt.Println("F: ", n.F)
-			// fmt.Println("dx: ", dx)
 		}
 		break
 	}
